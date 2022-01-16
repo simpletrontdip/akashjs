@@ -8,7 +8,7 @@ class TxCertRevoke {
         this.akash = akash;
     }
     async getSerial(owner) {
-        const cert = await certificate_1.loadPEMBlocks(owner);
+        const cert = await (0, certificate_1.loadPEMBlocks)(owner);
         if (cert) {
             return cert.serialNumber.toString();
         }
@@ -26,7 +26,7 @@ class TxCertRevoke {
         const response = this.akash.signingClient.certRevoke(owner, request, fee, memo);
         response.then(() => {
             // Delete locally stored certificate if exists
-            return certificate_1.deletePEMBlocks(owner, Number(serial));
+            return (0, certificate_1.deletePEMBlocks)(owner, Number(serial));
         });
         return response;
     }

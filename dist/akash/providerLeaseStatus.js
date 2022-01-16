@@ -15,8 +15,8 @@ class ProviderLeaseStatus {
         if (!providerUri) {
             throw new Error(`Provider ${provider} not found on chain.`);
         }
-        const uri = `${proxy}${provider_1.leaseStatusPath({ dseq: dseq, gseq: gseq, oseq: oseq })}`;
-        return provider_1.providerGatewayPost(uri, providerUri, owner, 'LEASE_STATUS').then(response => response.json());
+        const uri = `${proxy}${(0, provider_1.leaseStatusPath)({ dseq: dseq, gseq: gseq, oseq: oseq })}`;
+        return (0, provider_1.providerGatewayPost)(uri, providerUri, owner, 'LEASE_STATUS').then(response => response.json());
     }
 }
 exports.ProviderLeaseStatus = ProviderLeaseStatus;

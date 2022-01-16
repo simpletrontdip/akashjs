@@ -51,7 +51,7 @@ class Akash {
         this.tmClient = tmClient;
         this.signingClient = signingClient;
         const queryClient = new stargate_1.QueryClient(tmClient);
-        const rpcClient = stargate_1.createProtobufRpcClient(queryClient);
+        const rpcClient = (0, stargate_1.createProtobufRpcClient)(queryClient);
         const auditQueryClientImpl = new query_1.QueryClientImpl(rpcClient);
         const certQueryClientImpl = new query_2.QueryClientImpl(rpcClient);
         const deploymentQueryClientImpl = new query_3.QueryClientImpl(rpcClient);

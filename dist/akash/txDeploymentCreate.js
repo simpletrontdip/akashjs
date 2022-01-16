@@ -16,7 +16,7 @@ class TxDeploymentCreate {
         const { memo = "", fee = akash_1.defaultFee, deposit = {
             denom: akash_1.denom,
             amount: "5000000"
-        }, dseq = await deployment_1.currentBlockHeight(this.akash), sdl } = params;
+        }, dseq = await (0, deployment_1.currentBlockHeight)(this.akash), sdl } = params;
         const request = {
             id: {
                 owner: owner,

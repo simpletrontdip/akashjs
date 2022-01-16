@@ -1,22 +1,22 @@
-import Certificate from "pkijs/src/Certificate";
-import AttributeTypeAndValue from "pkijs/src/AttributeTypeAndValue";
-import BasicConstraints from "pkijs/src/BasicConstraints";
-import Extension from "pkijs/src/Extension";
-import ExtKeyUsage from "pkijs/src/ExtKeyUsage";
 import {
+  Certificate,
+  AttributeTypeAndValue,
+  BasicConstraints,
+  Extension,
+  ExtKeyUsage,
   getAlgorithmParameters,
-  getCrypto
-} from "pkijs/src/common";
+  getCrypto,
+} from "pkijs";
 import * as asn1js from "asn1js";
 import { arrayBufferToString, toBase64, stringToArrayBuffer } from "pvutils";
-import { del, get, set } from 'idb-keyval';
+import { del, get, set } from "idb-keyval";
 
 export interface PEMBlocks {
-  owner: string,
-  serialNumber: number,
-  certificate: ArrayBuffer
-  privateKey: ArrayBuffer,
-  publicKey: ArrayBuffer
+  owner: string;
+  serialNumber: number;
+  certificate: ArrayBuffer;
+  privateKey: ArrayBuffer;
+  publicKey: ArrayBuffer;
 }
 
 // Tweaked version of https://github.com/ovrclk/akashjs/blob/main/src/certifcates/generate509.ts
@@ -44,26 +44,30 @@ export async function createPEMBlocks(
   // POST to the provider gateway. But this means we can't even set 'extractable' to false here for better security,
   // because we need to be able to export the keys and send them to the proxy. And having a proxy
   // introduces another attack surface.
-  // 
+  //
   // Also, the golang version doesn't seem to be doing true mTLS that involves a CA. The provider gateway
   // sets InsecureSkipVerify to true and relies on VerifyPeerCertificate to (superficially?) compare the client's certificate
   // against the one on chain. This feels attackable.
   //
   // Need to think about this more...
-  const keyPair = await crypto.generateKey(algo.algorithm, true, algo.usages) as CryptoKeyPair;
+  const keyPair = (await crypto.generateKey(
+    algo.algorithm,
+    true,
+    algo.usages
+  )) as CryptoKeyPair;
 
   const certificate = new Certificate();
   certificate.version = 2;
   const serialNumber = Date.now();
   certificate.serialNumber = new asn1js.Integer({ value: serialNumber });
-  
+
   // const authVersionOID = "2.23.133.2.6";
   // const authVersion = "v0.0.1";
 
   certificate.issuer.typesAndValues.push(
     new AttributeTypeAndValue({
       type: "2.5.4.3", // Common name
-      value: new asn1js.PrintableString({ value: address })
+      value: new asn1js.PrintableString({ value: address }),
     })
   );
 
@@ -77,7 +81,7 @@ export async function createPEMBlocks(
   certificate.subject.typesAndValues.push(
     new AttributeTypeAndValue({
       type: "2.5.4.3", // Common name
-      value: new asn1js.PrintableString({ value: address })
+      value: new asn1js.PrintableString({ value: address }),
     })
   );
 
@@ -87,9 +91,11 @@ export async function createPEMBlocks(
   //     value: new asn1js.PrintableString({ value: authVersion })
   //   })
   // );
-  
+
   certificate.notBefore.value = nbf;
-  certificate.notAfter.value = new Date(nbf.getTime() + naf * 24 * 60 * 60 * 1000);
+  certificate.notAfter.value = new Date(
+    nbf.getTime() + naf * 24 * 60 * 60 * 1000
+  );
 
   certificate.extensions = [];
 
@@ -151,9 +157,9 @@ export async function createPEMBlocks(
     serialNumber: serialNumber,
     certificate: certificate.toSchema(true).toBER(false),
     privateKey: await crypto.exportKey("pkcs8", keyPair.privateKey),
-    publicKey: await crypto.exportKey("spki", keyPair.publicKey)
+    publicKey: await crypto.exportKey("spki", keyPair.publicKey),
   };
-};
+}
 
 export async function savePEMBlocks(pemBlocks: PEMBlocks): Promise<void> {
   return set(pemBlocks.owner, pemBlocks);
@@ -162,12 +168,15 @@ export async function savePEMBlocks(pemBlocks: PEMBlocks): Promise<void> {
 export async function loadPEMBlocks(owner: string): Promise<PEMBlocks> {
   const pemBlocks = await get(owner);
   if (!pemBlocks) {
-    throw new Error('No Certificates found.');
+    throw new Error("No Certificates found.");
   }
   return pemBlocks;
 }
 
-export async function deletePEMBlocks(owner: string, serial: number): Promise<void> {
+export async function deletePEMBlocks(
+  owner: string,
+  serial: number
+): Promise<void> {
   const pemBlocks = await loadPEMBlocks(owner);
   if (pemBlocks && pemBlocks.serialNumber === serial) {
     return del(owner);
@@ -177,8 +186,8 @@ export async function deletePEMBlocks(owner: string, serial: number): Promise<vo
 export function encode(pemBlocks: PEMBlocks) {
   const formatPEM = (pemString: string) => {
     return pemString.replace(/(.{64})/g, "$1\n");
-  }
-  
+  };
+
   return {
     certificate: `-----BEGIN CERTIFICATE-----\n${formatPEM(
       toBase64(arrayBufferToString(pemBlocks.certificate))
@@ -188,8 +197,8 @@ export function encode(pemBlocks: PEMBlocks) {
     )}\n-----END PRIVATE KEY-----`,
     publicKey: `-----BEGIN EC PUBLIC KEY-----\n${formatPEM(
       toBase64(arrayBufferToString(pemBlocks.publicKey))
-    )}\n-----END EC PUBLIC KEY-----`
-  }
+    )}\n-----END EC PUBLIC KEY-----`,
+  };
 }
 
 export async function getPemStrings(owner: string) {
@@ -197,8 +206,8 @@ export async function getPemStrings(owner: string) {
   const pemStrings = encode(pemBlocks);
   return {
     cert: pemStrings.certificate,
-    key: pemStrings.privateKey
-  }
+    key: pemStrings.privateKey,
+  };
 }
 
 export function stringToUint8Array(str: string): Uint8Array {

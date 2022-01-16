@@ -20,7 +20,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.findDeploymentSequence = exports.currentBlockHeight = exports.SDL = void 0;
-const common_1 = require("pkijs/src/common");
+const pkijs_1 = require("pkijs");
 const pvutils_1 = require("pvutils");
 const js_yaml_1 = __importStar(require("js-yaml"));
 const endpoint_1 = require("../codec/akash/base/v1beta1/endpoint");
@@ -55,10 +55,12 @@ class SDL {
                     attributes: Object.entries(groupAttributes).map(([key, value]) => {
                         return { key: key, value: value };
                     }),
-                    signedBy: groupSignedBy ? {
-                        allOf: groupSignedBy.allOf || [],
-                        anyOf: groupSignedBy.anyOf || [],
-                    } : undefined
+                    signedBy: groupSignedBy
+                        ? {
+                            allOf: groupSignedBy.allOf || [],
+                            anyOf: groupSignedBy.anyOf || [],
+                        }
+                        : undefined,
                 },
                 resources: serviceNames.map((serviceName) => {
                     const profileName = this.data.deployment[serviceName][groupName].profile;
@@ -87,32 +89,33 @@ class SDL {
                     return {
                         count: this.data.deployment[serviceName][groupName].count,
                         price: {
-                            denom: this.data.profiles.placement[groupName].pricing[profileName].denom,
-                            amount: this.data.profiles.placement[groupName].pricing[profileName].amount.toString()
+                            denom: this.data.profiles.placement[groupName].pricing[profileName]
+                                .denom,
+                            amount: this.data.profiles.placement[groupName].pricing[profileName].amount.toString(),
                         },
                         resources: {
                             cpu: {
                                 units: {
-                                    val: new Uint8Array(pvutils_1.stringToArrayBuffer(normalizedCPUUnit))
+                                    val: new Uint8Array((0, pvutils_1.stringToArrayBuffer)(normalizedCPUUnit)),
                                 },
-                                attributes: []
+                                attributes: [],
                             },
                             memory: {
                                 quantity: {
-                                    val: new Uint8Array(pvutils_1.stringToArrayBuffer(normalizedMemoryUnit))
+                                    val: new Uint8Array((0, pvutils_1.stringToArrayBuffer)(normalizedMemoryUnit)),
                                 },
-                                attributes: []
+                                attributes: [],
                             },
                             storage: {
                                 quantity: {
-                                    val: new Uint8Array(pvutils_1.stringToArrayBuffer(normalizedStorageUnit))
+                                    val: new Uint8Array((0, pvutils_1.stringToArrayBuffer)(normalizedStorageUnit)),
                                 },
-                                attributes: []
+                                attributes: [],
                             },
-                            endpoints: endpoints
-                        }
+                            endpoints: endpoints,
+                        },
                     };
-                })
+                }),
             });
         });
         this.manifest = [];
@@ -144,8 +147,11 @@ class SDL {
                                     SendTimeout: (exposeHTTPOptions === null || exposeHTTPOptions === void 0 ? void 0 : exposeHTTPOptions.send_timeout) || 60000,
                                     NextTries: (exposeHTTPOptions === null || exposeHTTPOptions === void 0 ? void 0 : exposeHTTPOptions.next_tries) || 3,
                                     NextTimeout: (exposeHTTPOptions === null || exposeHTTPOptions === void 0 ? void 0 : exposeHTTPOptions.next_timeout) || 60000,
-                                    NextCases: (exposeHTTPOptions === null || exposeHTTPOptions === void 0 ? void 0 : exposeHTTPOptions.next_cases) || ["error", "timeout"]
-                                }
+                                    NextCases: (exposeHTTPOptions === null || exposeHTTPOptions === void 0 ? void 0 : exposeHTTPOptions.next_cases) || [
+                                        "error",
+                                        "timeout",
+                                    ],
+                                },
                             });
                         });
                     });
@@ -159,42 +165,44 @@ class SDL {
                         Resources: {
                             cpu: {
                                 units: {
-                                    val: normalizedCPUUnit
-                                }
+                                    val: normalizedCPUUnit,
+                                },
                             },
                             memory: {
                                 size: {
-                                    val: normalizedMemoryUnit
-                                }
+                                    val: normalizedMemoryUnit,
+                                },
                             },
                             storage: {
                                 size: {
-                                    val: normalizedStorageUnit
-                                }
+                                    val: normalizedStorageUnit,
+                                },
                             },
-                            endpoints: null
+                            endpoints: null,
                         },
                         Count: this.data.deployment[serviceName][groupName].count,
-                        Expose: flattenedExpose.length > 0 ? flattenedExpose : null
+                        Expose: flattenedExpose.length > 0 ? flattenedExpose : null,
                     };
-                })
+                }),
             });
         });
     }
     async manifestVersion() {
         // Computes deterministic hash
-        const crypto = common_1.getCrypto();
+        const crypto = (0, pkijs_1.getCrypto)();
         const sortedJSONString = JSON.stringify(this.sortJSON(this.manifest));
-        const sortedJSONArraryBuffer = pvutils_1.stringToArrayBuffer(sortedJSONString);
+        const sortedJSONArraryBuffer = (0, pvutils_1.stringToArrayBuffer)(sortedJSONString);
         return crypto.digest("SHA-256", sortedJSONArraryBuffer);
     }
     sortJSON(obj) {
         if (Array.isArray(obj)) {
             // golang version doesn't sort on arrays it seems
-            return obj.map(e => this.sortJSON(e));
+            return obj.map((e) => this.sortJSON(e));
         }
-        if (obj && typeof obj === 'object') {
-            return Object.fromEntries(Object.entries(obj).map(([k, v]) => [k, this.sortJSON(v)]).sort());
+        if (obj && typeof obj === "object") {
+            return Object.fromEntries(Object.entries(obj)
+                .map(([k, v]) => [k, this.sortJSON(v)])
+                .sort());
         }
         return obj;
     }
@@ -227,7 +235,7 @@ class SDL {
             P: 1000 ** 5,
             Pi: 1024 ** 5,
             E: 1000 ** 6,
-            Ei: 1024 ** 6
+            Ei: 1024 ** 6,
         };
         const lhs = parseFloat(unit);
         const rhs = unit.replace(lhs.toString(), "");
@@ -242,12 +250,12 @@ async function currentBlockHeight(akash) {
 }
 exports.currentBlockHeight = currentBlockHeight;
 function findDeploymentSequence(deployCreateResponse) {
-    const logs = logs_1.parseRawLog(deployCreateResponse.rawLog);
+    const logs = (0, logs_1.parseRawLog)(deployCreateResponse.rawLog);
     const eventType = "akash.v1";
     return {
-        dseq: Number(logs_1.findAttribute(logs, eventType, "dseq").value),
-        gseq: Number(logs_1.findAttribute(logs, eventType, "gseq").value),
-        oseq: Number(logs_1.findAttribute(logs, eventType, "oseq").value)
+        dseq: Number((0, logs_1.findAttribute)(logs, eventType, "dseq").value),
+        gseq: Number((0, logs_1.findAttribute)(logs, eventType, "gseq").value),
+        oseq: Number((0, logs_1.findAttribute)(logs, eventType, "oseq").value),
     };
 }
 exports.findDeploymentSequence = findDeploymentSequence;

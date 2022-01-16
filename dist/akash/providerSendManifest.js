@@ -16,8 +16,8 @@ class ProviderSendManifest {
         if (!providerUri) {
             throw new Error(`Provider ${provider} not found on chain.`);
         }
-        const uri = `${proxy}${provider_1.submitManifestPath(dseq)}`;
-        return provider_1.providerGatewayPost(uri, providerUri, owner, 'SEND_MANIFEST', { manifest: manifest }).then(response => response.text());
+        const uri = `${proxy}${(0, provider_1.submitManifestPath)(dseq)}`;
+        return (0, provider_1.providerGatewayPost)(uri, providerUri, owner, 'SEND_MANIFEST', { manifest: manifest }).then(response => response.text());
     }
 }
 exports.ProviderSendManifest = ProviderSendManifest;

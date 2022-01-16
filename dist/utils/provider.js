@@ -27,7 +27,7 @@ function serviceLogsPath(id) {
 }
 exports.serviceLogsPath = serviceLogsPath;
 async function providerGatewayPost(uri, providerUri, owner, type, payload = {}) {
-    const pemStrings = await certificate_1.getPemStrings(owner);
+    const pemStrings = await (0, certificate_1.getPemStrings)(owner);
     const body = {
         providerUri: providerUri,
         cert: pemStrings.cert,

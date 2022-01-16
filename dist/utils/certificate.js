@@ -18,17 +18,9 @@ var __importStar = (this && this.__importStar) || function (mod) {
     __setModuleDefault(result, mod);
     return result;
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.stringToUint8Array = exports.getPemStrings = exports.encode = exports.deletePEMBlocks = exports.loadPEMBlocks = exports.savePEMBlocks = exports.createPEMBlocks = void 0;
-const Certificate_1 = __importDefault(require("pkijs/src/Certificate"));
-const AttributeTypeAndValue_1 = __importDefault(require("pkijs/src/AttributeTypeAndValue"));
-const BasicConstraints_1 = __importDefault(require("pkijs/src/BasicConstraints"));
-const Extension_1 = __importDefault(require("pkijs/src/Extension"));
-const ExtKeyUsage_1 = __importDefault(require("pkijs/src/ExtKeyUsage"));
-const common_1 = require("pkijs/src/common");
+const pkijs_1 = require("pkijs");
 const asn1js = __importStar(require("asn1js"));
 const pvutils_1 = require("pvutils");
 const idb_keyval_1 = require("idb-keyval");
@@ -36,8 +28,8 @@ const idb_keyval_1 = require("idb-keyval");
 async function createPEMBlocks(address, naf = 365, // certificate is not valid after this many days.
 nbf = new Date(), // certificate is not valid before this date.
 signAlgorithm = "ECDSA", hashAlgorithm = "SHA-256") {
-    const crypto = common_1.getCrypto();
-    const algo = common_1.getAlgorithmParameters(signAlgorithm, "generatekey");
+    const crypto = (0, pkijs_1.getCrypto)();
+    const algo = (0, pkijs_1.getAlgorithmParameters)(signAlgorithm, "generatekey");
     // Note that golang version further password protects the private key
     // with a signature generated from using the account's key to sign its address.
     //
@@ -52,22 +44,22 @@ signAlgorithm = "ECDSA", hashAlgorithm = "SHA-256") {
     // POST to the provider gateway. But this means we can't even set 'extractable' to false here for better security,
     // because we need to be able to export the keys and send them to the proxy. And having a proxy
     // introduces another attack surface.
-    // 
+    //
     // Also, the golang version doesn't seem to be doing true mTLS that involves a CA. The provider gateway
     // sets InsecureSkipVerify to true and relies on VerifyPeerCertificate to (superficially?) compare the client's certificate
     // against the one on chain. This feels attackable.
     //
     // Need to think about this more...
-    const keyPair = await crypto.generateKey(algo.algorithm, true, algo.usages);
-    const certificate = new Certificate_1.default();
+    const keyPair = (await crypto.generateKey(algo.algorithm, true, algo.usages));
+    const certificate = new pkijs_1.Certificate();
     certificate.version = 2;
     const serialNumber = Date.now();
     certificate.serialNumber = new asn1js.Integer({ value: serialNumber });
     // const authVersionOID = "2.23.133.2.6";
     // const authVersion = "v0.0.1";
-    certificate.issuer.typesAndValues.push(new AttributeTypeAndValue_1.default({
+    certificate.issuer.typesAndValues.push(new pkijs_1.AttributeTypeAndValue({
         type: "2.5.4.3",
-        value: new asn1js.PrintableString({ value: address })
+        value: new asn1js.PrintableString({ value: address }),
     }));
     // certificate.issuer.typesAndValues.push(
     //   new AttributeTypeAndValue({
@@ -75,9 +67,9 @@ signAlgorithm = "ECDSA", hashAlgorithm = "SHA-256") {
     //     value: new asn1js.PrintableString({ value: authVersion })
     //   })
     // );
-    certificate.subject.typesAndValues.push(new AttributeTypeAndValue_1.default({
+    certificate.subject.typesAndValues.push(new pkijs_1.AttributeTypeAndValue({
         type: "2.5.4.3",
-        value: new asn1js.PrintableString({ value: address })
+        value: new asn1js.PrintableString({ value: address }),
     }));
     // certificate.subject.typesAndValues.push(
     //   new AttributeTypeAndValue({
@@ -94,7 +86,7 @@ signAlgorithm = "ECDSA", hashAlgorithm = "SHA-256") {
     bitView[0] |= 0x10; //data encypherment
     bitView[0] |= 0x20; //key Encipherment
     const keyUsage = new asn1js.BitString({ valueHex: bitArray });
-    certificate.extensions.push(new Extension_1.default({
+    certificate.extensions.push(new pkijs_1.Extension({
         extnID: "2.5.29.15",
         critical: true,
         extnValue: keyUsage.toBER(false),
@@ -102,22 +94,22 @@ signAlgorithm = "ECDSA", hashAlgorithm = "SHA-256") {
     }));
     //endregion
     //region Extended Key Usage
-    const extKeyUsage = new ExtKeyUsage_1.default({
+    const extKeyUsage = new pkijs_1.ExtKeyUsage({
         keyPurposes: [
             "1.3.6.1.5.5.7.3.2", // id-kp-clientAuth
         ],
     });
-    certificate.extensions.push(new Extension_1.default({
+    certificate.extensions.push(new pkijs_1.Extension({
         extnID: "2.5.29.37",
         extnValue: extKeyUsage.toSchema().toBER(false),
         parsedValue: extKeyUsage, // Parsed value for well-known extensions
     }));
     //endregion
     //region "BasicConstraints" extension
-    const basicConstr = new BasicConstraints_1.default({
+    const basicConstr = new pkijs_1.BasicConstraints({
         cA: false,
     });
-    certificate.extensions.push(new Extension_1.default({
+    certificate.extensions.push(new pkijs_1.Extension({
         extnID: "2.5.29.19",
         critical: true,
         extnValue: basicConstr.toSchema().toBER(false),
@@ -131,19 +123,18 @@ signAlgorithm = "ECDSA", hashAlgorithm = "SHA-256") {
         serialNumber: serialNumber,
         certificate: certificate.toSchema(true).toBER(false),
         privateKey: await crypto.exportKey("pkcs8", keyPair.privateKey),
-        publicKey: await crypto.exportKey("spki", keyPair.publicKey)
+        publicKey: await crypto.exportKey("spki", keyPair.publicKey),
     };
 }
 exports.createPEMBlocks = createPEMBlocks;
-;
 async function savePEMBlocks(pemBlocks) {
-    return idb_keyval_1.set(pemBlocks.owner, pemBlocks);
+    return (0, idb_keyval_1.set)(pemBlocks.owner, pemBlocks);
 }
 exports.savePEMBlocks = savePEMBlocks;
 async function loadPEMBlocks(owner) {
-    const pemBlocks = await idb_keyval_1.get(owner);
+    const pemBlocks = await (0, idb_keyval_1.get)(owner);
     if (!pemBlocks) {
-        throw new Error('No Certificates found.');
+        throw new Error("No Certificates found.");
     }
     return pemBlocks;
 }
@@ -151,7 +142,7 @@ exports.loadPEMBlocks = loadPEMBlocks;
 async function deletePEMBlocks(owner, serial) {
     const pemBlocks = await loadPEMBlocks(owner);
     if (pemBlocks && pemBlocks.serialNumber === serial) {
-        return idb_keyval_1.del(owner);
+        return (0, idb_keyval_1.del)(owner);
     }
 }
 exports.deletePEMBlocks = deletePEMBlocks;
@@ -160,9 +151,9 @@ function encode(pemBlocks) {
         return pemString.replace(/(.{64})/g, "$1\n");
     };
     return {
-        certificate: `-----BEGIN CERTIFICATE-----\n${formatPEM(pvutils_1.toBase64(pvutils_1.arrayBufferToString(pemBlocks.certificate)))}\n-----END CERTIFICATE-----`,
-        privateKey: `-----BEGIN PRIVATE KEY-----\n${formatPEM(pvutils_1.toBase64(pvutils_1.arrayBufferToString(pemBlocks.privateKey)))}\n-----END PRIVATE KEY-----`,
-        publicKey: `-----BEGIN EC PUBLIC KEY-----\n${formatPEM(pvutils_1.toBase64(pvutils_1.arrayBufferToString(pemBlocks.publicKey)))}\n-----END EC PUBLIC KEY-----`
+        certificate: `-----BEGIN CERTIFICATE-----\n${formatPEM((0, pvutils_1.toBase64)((0, pvutils_1.arrayBufferToString)(pemBlocks.certificate)))}\n-----END CERTIFICATE-----`,
+        privateKey: `-----BEGIN PRIVATE KEY-----\n${formatPEM((0, pvutils_1.toBase64)((0, pvutils_1.arrayBufferToString)(pemBlocks.privateKey)))}\n-----END PRIVATE KEY-----`,
+        publicKey: `-----BEGIN EC PUBLIC KEY-----\n${formatPEM((0, pvutils_1.toBase64)((0, pvutils_1.arrayBufferToString)(pemBlocks.publicKey)))}\n-----END EC PUBLIC KEY-----`,
     };
 }
 exports.encode = encode;
@@ -171,12 +162,12 @@ async function getPemStrings(owner) {
     const pemStrings = encode(pemBlocks);
     return {
         cert: pemStrings.certificate,
-        key: pemStrings.privateKey
+        key: pemStrings.privateKey,
     };
 }
 exports.getPemStrings = getPemStrings;
 function stringToUint8Array(str) {
-    return new Uint8Array(pvutils_1.stringToArrayBuffer(str));
+    return new Uint8Array((0, pvutils_1.stringToArrayBuffer)(str));
 }
 exports.stringToUint8Array = stringToUint8Array;
 //# sourceMappingURL=certificate.js.map
