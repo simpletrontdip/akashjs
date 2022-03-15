@@ -8,7 +8,7 @@ class QueryAuditGet {
     async params(params) {
         const request = {
             auditor: params.auditor,
-            owner: params.owner
+            owner: params.owner,
         };
         return this.queryService.ProviderAuditorAttributes(request);
     }

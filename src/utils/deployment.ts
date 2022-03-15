@@ -2,9 +2,9 @@ import { Akash } from "../akash/akash";
 import { getCrypto } from "pkijs";
 import { stringToArrayBuffer } from "pvutils";
 import yaml, { DEFAULT_SCHEMA } from "js-yaml";
-import { GroupSpec } from "../codec/akash/deployment/v1beta1/group";
-import { Attribute } from "../codec/akash/base/v1beta1/attribute";
-import { Endpoint, Endpoint_Kind } from "../codec/akash/base/v1beta1/endpoint";
+import { GroupSpec } from "../codec/akash/deployment/v1beta2/groupspec";
+import { Attribute } from "../codec/akash/base/v1beta2/attribute";
+import { Endpoint, Endpoint_Kind } from "../codec/akash/base/v1beta2/endpoint";
 import { BroadcastTxResponse } from "@cosmjs/stargate";
 import { findAttribute, parseRawLog } from "@cosmjs/stargate/build/logs";
 
@@ -236,7 +236,10 @@ export class SDL {
                   if (shouldBeIngress) {
                     kind = Endpoint_Kind.SHARED_HTTP;
                   }
-                  endpoints.push({ kind: kind });
+                  endpoints.push({
+                    kind: kind,
+                    sequenceNumber: 1,
+                  });
                 }
               });
             }
@@ -268,14 +271,17 @@ export class SDL {
                 },
                 attributes: [],
               },
-              storage: {
-                quantity: {
-                  val: new Uint8Array(
-                    stringToArrayBuffer(normalizedStorageUnit)
-                  ),
+              storage: [
+                {
+                  name: "",
+                  quantity: {
+                    val: new Uint8Array(
+                      stringToArrayBuffer(normalizedStorageUnit)
+                    ),
+                  },
+                  attributes: [],
                 },
-                attributes: [],
-              },
+              ],
               endpoints: endpoints,
             },
           };

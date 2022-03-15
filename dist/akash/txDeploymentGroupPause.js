@@ -17,8 +17,8 @@ class TxDeploymentGroupPause {
             id: {
                 owner: owner,
                 dseq: new long_1.default(dseq),
-                gseq: gseq
-            }
+                gseq: gseq,
+            },
         };
         return this.akash.signingClient.deploymentGroupPause(owner, request, fee, memo);
     }

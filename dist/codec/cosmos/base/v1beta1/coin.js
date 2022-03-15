@@ -8,7 +8,9 @@ exports.DecProto = exports.IntProto = exports.DecCoin = exports.Coin = exports.p
 const long_1 = __importDefault(require("long"));
 const minimal_1 = __importDefault(require("protobufjs/minimal"));
 exports.protobufPackage = "cosmos.base.v1beta1";
-const baseCoin = { denom: "", amount: "" };
+function createBaseCoin() {
+    return { denom: "", amount: "" };
+}
 exports.Coin = {
     encode(message, writer = minimal_1.default.Writer.create()) {
         if (message.denom !== "") {
@@ -22,7 +24,7 @@ exports.Coin = {
     decode(input, length) {
         const reader = input instanceof minimal_1.default.Reader ? input : new minimal_1.default.Reader(input);
         let end = length === undefined ? reader.len : reader.pos + length;
-        const message = Object.assign({}, baseCoin);
+        const message = createBaseCoin();
         while (reader.pos < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -40,20 +42,10 @@ exports.Coin = {
         return message;
     },
     fromJSON(object) {
-        const message = Object.assign({}, baseCoin);
-        if (object.denom !== undefined && object.denom !== null) {
-            message.denom = String(object.denom);
-        }
-        else {
-            message.denom = "";
-        }
-        if (object.amount !== undefined && object.amount !== null) {
-            message.amount = String(object.amount);
-        }
-        else {
-            message.amount = "";
-        }
-        return message;
+        return {
+            denom: isSet(object.denom) ? String(object.denom) : "",
+            amount: isSet(object.amount) ? String(object.amount) : "",
+        };
     },
     toJSON(message) {
         const obj = {};
@@ -62,23 +54,16 @@ exports.Coin = {
         return obj;
     },
     fromPartial(object) {
-        const message = Object.assign({}, baseCoin);
-        if (object.denom !== undefined && object.denom !== null) {
-            message.denom = object.denom;
-        }
-        else {
-            message.denom = "";
-        }
-        if (object.amount !== undefined && object.amount !== null) {
-            message.amount = object.amount;
-        }
-        else {
-            message.amount = "";
-        }
+        var _a, _b;
+        const message = createBaseCoin();
+        message.denom = (_a = object.denom) !== null && _a !== void 0 ? _a : "";
+        message.amount = (_b = object.amount) !== null && _b !== void 0 ? _b : "";
         return message;
     },
 };
-const baseDecCoin = { denom: "", amount: "" };
+function createBaseDecCoin() {
+    return { denom: "", amount: "" };
+}
 exports.DecCoin = {
     encode(message, writer = minimal_1.default.Writer.create()) {
         if (message.denom !== "") {
@@ -92,7 +77,7 @@ exports.DecCoin = {
     decode(input, length) {
         const reader = input instanceof minimal_1.default.Reader ? input : new minimal_1.default.Reader(input);
         let end = length === undefined ? reader.len : reader.pos + length;
-        const message = Object.assign({}, baseDecCoin);
+        const message = createBaseDecCoin();
         while (reader.pos < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -110,20 +95,10 @@ exports.DecCoin = {
         return message;
     },
     fromJSON(object) {
-        const message = Object.assign({}, baseDecCoin);
-        if (object.denom !== undefined && object.denom !== null) {
-            message.denom = String(object.denom);
-        }
-        else {
-            message.denom = "";
-        }
-        if (object.amount !== undefined && object.amount !== null) {
-            message.amount = String(object.amount);
-        }
-        else {
-            message.amount = "";
-        }
-        return message;
+        return {
+            denom: isSet(object.denom) ? String(object.denom) : "",
+            amount: isSet(object.amount) ? String(object.amount) : "",
+        };
     },
     toJSON(message) {
         const obj = {};
@@ -132,23 +107,16 @@ exports.DecCoin = {
         return obj;
     },
     fromPartial(object) {
-        const message = Object.assign({}, baseDecCoin);
-        if (object.denom !== undefined && object.denom !== null) {
-            message.denom = object.denom;
-        }
-        else {
-            message.denom = "";
-        }
-        if (object.amount !== undefined && object.amount !== null) {
-            message.amount = object.amount;
-        }
-        else {
-            message.amount = "";
-        }
+        var _a, _b;
+        const message = createBaseDecCoin();
+        message.denom = (_a = object.denom) !== null && _a !== void 0 ? _a : "";
+        message.amount = (_b = object.amount) !== null && _b !== void 0 ? _b : "";
         return message;
     },
 };
-const baseIntProto = { int: "" };
+function createBaseIntProto() {
+    return { int: "" };
+}
 exports.IntProto = {
     encode(message, writer = minimal_1.default.Writer.create()) {
         if (message.int !== "") {
@@ -159,7 +127,7 @@ exports.IntProto = {
     decode(input, length) {
         const reader = input instanceof minimal_1.default.Reader ? input : new minimal_1.default.Reader(input);
         let end = length === undefined ? reader.len : reader.pos + length;
-        const message = Object.assign({}, baseIntProto);
+        const message = createBaseIntProto();
         while (reader.pos < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -174,14 +142,9 @@ exports.IntProto = {
         return message;
     },
     fromJSON(object) {
-        const message = Object.assign({}, baseIntProto);
-        if (object.int !== undefined && object.int !== null) {
-            message.int = String(object.int);
-        }
-        else {
-            message.int = "";
-        }
-        return message;
+        return {
+            int: isSet(object.int) ? String(object.int) : "",
+        };
     },
     toJSON(message) {
         const obj = {};
@@ -189,17 +152,15 @@ exports.IntProto = {
         return obj;
     },
     fromPartial(object) {
-        const message = Object.assign({}, baseIntProto);
-        if (object.int !== undefined && object.int !== null) {
-            message.int = object.int;
-        }
-        else {
-            message.int = "";
-        }
+        var _a;
+        const message = createBaseIntProto();
+        message.int = (_a = object.int) !== null && _a !== void 0 ? _a : "";
         return message;
     },
 };
-const baseDecProto = { dec: "" };
+function createBaseDecProto() {
+    return { dec: "" };
+}
 exports.DecProto = {
     encode(message, writer = minimal_1.default.Writer.create()) {
         if (message.dec !== "") {
@@ -210,7 +171,7 @@ exports.DecProto = {
     decode(input, length) {
         const reader = input instanceof minimal_1.default.Reader ? input : new minimal_1.default.Reader(input);
         let end = length === undefined ? reader.len : reader.pos + length;
-        const message = Object.assign({}, baseDecProto);
+        const message = createBaseDecProto();
         while (reader.pos < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -225,14 +186,9 @@ exports.DecProto = {
         return message;
     },
     fromJSON(object) {
-        const message = Object.assign({}, baseDecProto);
-        if (object.dec !== undefined && object.dec !== null) {
-            message.dec = String(object.dec);
-        }
-        else {
-            message.dec = "";
-        }
-        return message;
+        return {
+            dec: isSet(object.dec) ? String(object.dec) : "",
+        };
     },
     toJSON(message) {
         const obj = {};
@@ -240,18 +196,17 @@ exports.DecProto = {
         return obj;
     },
     fromPartial(object) {
-        const message = Object.assign({}, baseDecProto);
-        if (object.dec !== undefined && object.dec !== null) {
-            message.dec = object.dec;
-        }
-        else {
-            message.dec = "";
-        }
+        var _a;
+        const message = createBaseDecProto();
+        message.dec = (_a = object.dec) !== null && _a !== void 0 ? _a : "";
         return message;
     },
 };
 if (minimal_1.default.util.Long !== long_1.default) {
     minimal_1.default.util.Long = long_1.default;
     minimal_1.default.configure();
+}
+function isSet(value) {
+    return value !== null && value !== undefined;
 }
 //# sourceMappingURL=coin.js.map

@@ -16,8 +16,8 @@ class TxDeploymentClose {
         const request = {
             id: {
                 owner: owner,
-                dseq: new long_1.default(dseq)
-            }
+                dseq: new long_1.default(dseq),
+            },
         };
         return this.akash.signingClient.deploymentClose(owner, request, fee, memo);
     }

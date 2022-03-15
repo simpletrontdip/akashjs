@@ -16,10 +16,10 @@ class TxDeploymentUpdate {
         const request = {
             id: {
                 owner: owner,
-                dseq: new long_1.default(dseq)
+                dseq: new long_1.default(dseq),
             },
             groups: sdl.groups,
-            version: new Uint8Array(await sdl.manifestVersion())
+            version: new Uint8Array(await sdl.manifestVersion()),
         };
         return this.akash.signingClient.deploymentUpdate(owner, request, fee, memo);
     }

@@ -38,7 +38,11 @@ export interface PageRequest {
    * is set.
    */
   countTotal: boolean;
-  /** reverse is set to true if results are to be returned in the descending order. */
+  /**
+   * reverse is set to true if results are to be returned in the descending order.
+   *
+   * Since: cosmos-sdk 0.43
+   */
   reverse: boolean;
 }
 
@@ -64,12 +68,15 @@ export interface PageResponse {
   total: Long;
 }
 
-const basePageRequest: object = {
-  offset: Long.UZERO,
-  limit: Long.UZERO,
-  countTotal: false,
-  reverse: false,
-};
+function createBasePageRequest(): PageRequest {
+  return {
+    key: new Uint8Array(),
+    offset: Long.UZERO,
+    limit: Long.UZERO,
+    countTotal: false,
+    reverse: false,
+  };
+}
 
 export const PageRequest = {
   encode(
@@ -97,8 +104,7 @@ export const PageRequest = {
   decode(input: _m0.Reader | Uint8Array, length?: number): PageRequest {
     const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
-    const message = { ...basePageRequest } as PageRequest;
-    message.key = new Uint8Array();
+    const message = createBasePageRequest();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -126,32 +132,15 @@ export const PageRequest = {
   },
 
   fromJSON(object: any): PageRequest {
-    const message = { ...basePageRequest } as PageRequest;
-    message.key = new Uint8Array();
-    if (object.key !== undefined && object.key !== null) {
-      message.key = bytesFromBase64(object.key);
-    }
-    if (object.offset !== undefined && object.offset !== null) {
-      message.offset = Long.fromString(object.offset);
-    } else {
-      message.offset = Long.UZERO;
-    }
-    if (object.limit !== undefined && object.limit !== null) {
-      message.limit = Long.fromString(object.limit);
-    } else {
-      message.limit = Long.UZERO;
-    }
-    if (object.countTotal !== undefined && object.countTotal !== null) {
-      message.countTotal = Boolean(object.countTotal);
-    } else {
-      message.countTotal = false;
-    }
-    if (object.reverse !== undefined && object.reverse !== null) {
-      message.reverse = Boolean(object.reverse);
-    } else {
-      message.reverse = false;
-    }
-    return message;
+    return {
+      key: isSet(object.key) ? bytesFromBase64(object.key) : new Uint8Array(),
+      offset: isSet(object.offset)
+        ? Long.fromString(object.offset)
+        : Long.UZERO,
+      limit: isSet(object.limit) ? Long.fromString(object.limit) : Long.UZERO,
+      countTotal: isSet(object.countTotal) ? Boolean(object.countTotal) : false,
+      reverse: isSet(object.reverse) ? Boolean(object.reverse) : false,
+    };
   },
 
   toJSON(message: PageRequest): unknown {
@@ -170,37 +159,25 @@ export const PageRequest = {
   },
 
   fromPartial(object: DeepPartial<PageRequest>): PageRequest {
-    const message = { ...basePageRequest } as PageRequest;
-    if (object.key !== undefined && object.key !== null) {
-      message.key = object.key;
-    } else {
-      message.key = new Uint8Array();
-    }
-    if (object.offset !== undefined && object.offset !== null) {
-      message.offset = object.offset as Long;
-    } else {
-      message.offset = Long.UZERO;
-    }
-    if (object.limit !== undefined && object.limit !== null) {
-      message.limit = object.limit as Long;
-    } else {
-      message.limit = Long.UZERO;
-    }
-    if (object.countTotal !== undefined && object.countTotal !== null) {
-      message.countTotal = object.countTotal;
-    } else {
-      message.countTotal = false;
-    }
-    if (object.reverse !== undefined && object.reverse !== null) {
-      message.reverse = object.reverse;
-    } else {
-      message.reverse = false;
-    }
+    const message = createBasePageRequest();
+    message.key = object.key ?? new Uint8Array();
+    message.offset =
+      object.offset !== undefined && object.offset !== null
+        ? Long.fromValue(object.offset)
+        : Long.UZERO;
+    message.limit =
+      object.limit !== undefined && object.limit !== null
+        ? Long.fromValue(object.limit)
+        : Long.UZERO;
+    message.countTotal = object.countTotal ?? false;
+    message.reverse = object.reverse ?? false;
     return message;
   },
 };
 
-const basePageResponse: object = { total: Long.UZERO };
+function createBasePageResponse(): PageResponse {
+  return { nextKey: new Uint8Array(), total: Long.UZERO };
+}
 
 export const PageResponse = {
   encode(
@@ -219,8 +196,7 @@ export const PageResponse = {
   decode(input: _m0.Reader | Uint8Array, length?: number): PageResponse {
     const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
-    const message = { ...basePageResponse } as PageResponse;
-    message.nextKey = new Uint8Array();
+    const message = createBasePageResponse();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -239,17 +215,12 @@ export const PageResponse = {
   },
 
   fromJSON(object: any): PageResponse {
-    const message = { ...basePageResponse } as PageResponse;
-    message.nextKey = new Uint8Array();
-    if (object.nextKey !== undefined && object.nextKey !== null) {
-      message.nextKey = bytesFromBase64(object.nextKey);
-    }
-    if (object.total !== undefined && object.total !== null) {
-      message.total = Long.fromString(object.total);
-    } else {
-      message.total = Long.UZERO;
-    }
-    return message;
+    return {
+      nextKey: isSet(object.nextKey)
+        ? bytesFromBase64(object.nextKey)
+        : new Uint8Array(),
+      total: isSet(object.total) ? Long.fromString(object.total) : Long.UZERO,
+    };
   },
 
   toJSON(message: PageResponse): unknown {
@@ -264,23 +235,19 @@ export const PageResponse = {
   },
 
   fromPartial(object: DeepPartial<PageResponse>): PageResponse {
-    const message = { ...basePageResponse } as PageResponse;
-    if (object.nextKey !== undefined && object.nextKey !== null) {
-      message.nextKey = object.nextKey;
-    } else {
-      message.nextKey = new Uint8Array();
-    }
-    if (object.total !== undefined && object.total !== null) {
-      message.total = object.total as Long;
-    } else {
-      message.total = Long.UZERO;
-    }
+    const message = createBasePageResponse();
+    message.nextKey = object.nextKey ?? new Uint8Array();
+    message.total =
+      object.total !== undefined && object.total !== null
+        ? Long.fromValue(object.total)
+        : Long.UZERO;
     return message;
   },
 };
 
 declare var self: any | undefined;
 declare var window: any | undefined;
+declare var global: any | undefined;
 var globalThis: any = (() => {
   if (typeof globalThis !== "undefined") return globalThis;
   if (typeof self !== "undefined") return self;
@@ -306,8 +273,8 @@ const btoa: (bin: string) => string =
   ((bin) => globalThis.Buffer.from(bin, "binary").toString("base64"));
 function base64FromBytes(arr: Uint8Array): string {
   const bin: string[] = [];
-  for (let i = 0; i < arr.byteLength; ++i) {
-    bin.push(String.fromCharCode(arr[i]));
+  for (const byte of arr) {
+    bin.push(String.fromCharCode(byte));
   }
   return btoa(bin.join(""));
 }
@@ -319,10 +286,12 @@ type Builtin =
   | string
   | number
   | boolean
-  | undefined
-  | Long;
+  | undefined;
+
 export type DeepPartial<T> = T extends Builtin
   ? T
+  : T extends Long
+  ? string | number | Long
   : T extends Array<infer U>
   ? Array<DeepPartial<U>>
   : T extends ReadonlyArray<infer U>
@@ -334,4 +303,8 @@ export type DeepPartial<T> = T extends Builtin
 if (_m0.util.Long !== Long) {
   _m0.util.Long = Long as any;
   _m0.configure();
+}
+
+function isSet(value: any): boolean {
+  return value !== null && value !== undefined;
 }

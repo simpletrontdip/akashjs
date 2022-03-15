@@ -23,7 +23,7 @@ exports.findDeploymentSequence = exports.currentBlockHeight = exports.SDL = void
 const pkijs_1 = require("pkijs");
 const pvutils_1 = require("pvutils");
 const js_yaml_1 = __importStar(require("js-yaml"));
-const endpoint_1 = require("../codec/akash/base/v1beta1/endpoint");
+const endpoint_1 = require("../codec/akash/base/v1beta2/endpoint");
 const logs_1 = require("@cosmjs/stargate/build/logs");
 class SDL {
     constructor(sdlString) {
@@ -81,7 +81,10 @@ class SDL {
                                     if (shouldBeIngress) {
                                         kind = endpoint_1.Endpoint_Kind.SHARED_HTTP;
                                     }
-                                    endpoints.push({ kind: kind });
+                                    endpoints.push({
+                                        kind: kind,
+                                        sequenceNumber: 1,
+                                    });
                                 }
                             });
                         }
@@ -106,12 +109,15 @@ class SDL {
                                 },
                                 attributes: [],
                             },
-                            storage: {
-                                quantity: {
-                                    val: new Uint8Array((0, pvutils_1.stringToArrayBuffer)(normalizedStorageUnit)),
+                            storage: [
+                                {
+                                    name: "",
+                                    quantity: {
+                                        val: new Uint8Array((0, pvutils_1.stringToArrayBuffer)(normalizedStorageUnit)),
+                                    },
+                                    attributes: [],
                                 },
-                                attributes: [],
-                            },
+                            ],
                             endpoints: endpoints,
                         },
                     };

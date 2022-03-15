@@ -15,16 +15,17 @@ class TxDeploymentCreate {
         const owner = this.akash.address;
         const { memo = "", fee = akash_1.defaultFee, deposit = {
             denom: akash_1.denom,
-            amount: "5000000"
-        }, dseq = await (0, deployment_1.currentBlockHeight)(this.akash), sdl } = params;
+            amount: "5000000",
+        }, dseq = await (0, deployment_1.currentBlockHeight)(this.akash), depositor, sdl, } = params;
         const request = {
             id: {
                 owner: owner,
-                dseq: new long_1.default(dseq)
+                dseq: new long_1.default(dseq),
             },
             groups: sdl.groups,
             version: new Uint8Array(await sdl.manifestVersion()),
-            deposit: deposit
+            deposit: deposit,
+            depositor: depositor,
         };
         return this.akash.signingClient.deploymentCreate(owner, request, fee, memo);
     }
