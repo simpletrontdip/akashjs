@@ -8,7 +8,6 @@ import { Coin } from "../codec/cosmos/base/v1beta1/coin";
 export interface TxDeploymentDepositParams extends TxParams {
   dseq: number;
   amount: Coin;
-  depositor: string;
 }
 
 export class TxDeploymentDeposit {
@@ -23,7 +22,7 @@ export class TxDeploymentDeposit {
   ): Promise<BroadcastTxResponse> {
     const owner = this.akash.address;
 
-    const { memo = "", fee = defaultFee, dseq, amount, depositor } = params;
+    const { memo = "", fee = defaultFee, dseq, amount } = params;
 
     const request: MsgDepositDeployment = {
       id: {
@@ -31,7 +30,7 @@ export class TxDeploymentDeposit {
         dseq: new Long(dseq),
       },
       amount: amount,
-      depositor: depositor,
+      depositor: owner,
     };
 
     return this.akash.signingClient.deploymentDeposit(

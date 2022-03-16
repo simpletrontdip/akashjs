@@ -12,14 +12,14 @@ class TxDeploymentDeposit {
     }
     async params(params) {
         const owner = this.akash.address;
-        const { memo = "", fee = akash_1.defaultFee, dseq, amount, depositor } = params;
+        const { memo = "", fee = akash_1.defaultFee, dseq, amount } = params;
         const request = {
             id: {
                 owner: owner,
                 dseq: new long_1.default(dseq),
             },
             amount: amount,
-            depositor: depositor,
+            depositor: owner,
         };
         return this.akash.signingClient.deploymentDeposit(owner, request, fee, memo);
     }

@@ -5,7 +5,6 @@ import { Coin } from "../codec/cosmos/base/v1beta1/coin";
 export interface TxDeploymentDepositParams extends TxParams {
     dseq: number;
     amount: Coin;
-    depositor: string;
 }
 export declare class TxDeploymentDeposit {
     private readonly akash;

@@ -33,7 +33,7 @@ export class TxDeploymentCreate {
         amount: "5000000",
       },
       dseq = await currentBlockHeight(this.akash),
-      depositor,
+      depositor = owner,
       sdl,
     } = params;
 
